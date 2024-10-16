@@ -1,7 +1,9 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from sklearn.datasets import make_blobs
 from sklearn.linear_model import RidgeClassifier
 from sklearn.metrics import accuracy_score
@@ -16,35 +18,34 @@ def test_view(request):
 
 @api_view(['POST'])
 def run_example(request):
-    # Get parameters from frontend
+    # Set the seed for reproducibility
     np.random.seed(29118)
-    n_samples = int(request.data.get('n_samples', 200))
+
+    # Get parameters from frontend
     lambda_value = float(request.data.get('lambda_value', 1.0))
-    alpha_value = float(request.data.get('alpha_value', 1.0))
+    alpha_value = float(request.data.get('alpha_value', 1.0))  # Define alpha_value
+
+    
+    # Get the uploaded files
+    source_file = request.FILES.get('source_data')
+    target_file = request.FILES.get('target_data')
 
 
-    print(n_samples)
-    print(lambda_value)
-    print(alpha_value)
+    if not source_file or not target_file:
+        return Response({"error": "Source and target data files are required"}, status=400)
+
+    # Read the CSV files into pandas dataframes
+    source_data = pd.read_csv(source_file)
+    target_data = pd.read_csv(target_file)
+    n_samples = len(source_data)
 
 
-    # Generate dummy data
-    xs, ys = make_blobs(n_samples, centers=[[0, 0], [0, 2]], cluster_std=[0.3, 0.35])
-    xt, yt = make_blobs(n_samples, centers=[[2, -2], [2, 0.2]], cluster_std=[0.35, 0.4])
+    # Split the data into features (all columns except 'label') and labels (the 'label' column)
+    xs = source_data.drop(columns=["label"]).values
+    ys = source_data["label"].values
 
-
-    # way to upload data.
-    # # Load the source and target data (with multiple features)
-    # source_data = pd.read_csv("country_a_data.csv")
-    # target_data = pd.read_csv("country_b_data.csv")
-
-    # # Split the data into multiple features (dropping the 'label' column)
-    # xs = source_data.drop(columns=["label"]).values  # Multiple features from Country A
-    # ys = source_data["label"].values  # Labels from Country A
-
-    # xt = target_data.drop(columns=["label"]).values  # Multiple features from Country B
-    # yt = target_data["label"].values  # Labels from Country B
-
+    xt = target_data.drop(columns=["label"]).values
+    yt = target_data["label"].values
 
 
     # Train Ridge Classifier

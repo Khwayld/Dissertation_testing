@@ -1,28 +1,26 @@
-// src/components/ExampleForm.js
 import React, { useState } from 'react';
 import Graph from './Graph';
 
 function ExampleForm() {
-  const [nSamples, setNSamples] = useState(200);
   const [lambdaValue, setLambdaValue] = useState(1.0);
   const [alphaValue, setAlphaValue] = useState(1.0);
+  const [sourceFile, setSourceFile] = useState(null);  // File state for source data
+  const [targetFile, setTargetFile] = useState(null);  // File state for target data
   const [results, setResults] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formData = {
-      n_samples: nSamples,
-      lambda_value: lambdaValue,
-      alpha_value: alphaValue,
-    };
+    // Create a FormData object to send files and other form data
+    const formData = new FormData();
+    formData.append('lambda_value', lambdaValue);
+    formData.append('alpha_value', alphaValue);
+    formData.append('source_data', sourceFile);  // Append source data file
+    formData.append('target_data', targetFile);  // Append target data file
 
     fetch('http://localhost:8000/api/run-example/', { 
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
+      body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
@@ -34,15 +32,6 @@ function ExampleForm() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <label>
-          Number of Samples:
-          <input
-            type="number"
-            value={nSamples}
-            onChange={(e) => setNSamples(e.target.value)}
-          />
-        </label>
-        <br />
         <label>
           Lambda Value:
           <input
@@ -61,6 +50,24 @@ function ExampleForm() {
           />
         </label>
         <br />
+        <label>
+          Source Data (CSV):
+          <input
+            type="file"
+            accept=".csv"
+            onChange={(e) => setSourceFile(e.target.files[0])}
+          />
+        </label>
+        <br />
+        <label>
+          Target Data (CSV):
+          <input
+            type="file"
+            accept=".csv"
+            onChange={(e) => setTargetFile(e.target.files[0])}
+          />
+        </label>
+        <br />
         <button type="submit">Run Example</button>
       </form>
 
@@ -69,7 +76,6 @@ function ExampleForm() {
           <h3>Results</h3>
           <p>Accuracy Before Adaptation: {results.accuracy_before}</p>
           <p>Accuracy After Adaptation: {results.accuracy_after}</p>
-
           <Graph graphData={results.graph_data} />
         </div>
       )}
