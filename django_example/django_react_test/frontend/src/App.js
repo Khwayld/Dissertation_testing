@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import './App.css';
+import ExampleForm from './components/ExampleForm';
 
 function App() {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/kale/")
-      .then((response) => response.json())
-      .then((data) => setData(data.accuracy));
-  }, []);
-
   return (
     <div className="App">
-      <h1>PyKale Model Accuracy: {data ? data : "Loading..."}</h1>
+      <header className="App-header">
+        <h1>Domain Adaptation Example</h1>
+        <ExampleForm />
+      </header>
     </div>
   );
 }

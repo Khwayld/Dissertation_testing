@@ -1,22 +1,82 @@
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 from sklearn.linear_model import RidgeClassifier
 from sklearn.metrics import accuracy_score
-import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+from kale.pipeline.multi_domain_adapter import CoIRLS
+
 
 @api_view(['GET'])
 def test_view(request):
     return Response({"message": "Django & React Integration Test"})
 
 
+@api_view(['POST'])
+def run_example(request):
+    # Get parameters from frontend
+    np.random.seed(29118)
+    n_samples = int(request.data.get('n_samples', 200))
+    lambda_value = float(request.data.get('lambda_value', 1.0))
+    alpha_value = float(request.data.get('alpha_value', 1.0))
 
-@api_view(['GET'])
-def kale_example_view(request):
-    np.random.seed(42)
-    # Generate toy data
-    X, y = make_blobs(n_samples=200, centers=[[0, 0], [2, 2]], cluster_std=0.5)
-    clf = RidgeClassifier()
-    clf.fit(X, y)
-    accuracy = accuracy_score(y, clf.predict(X))
-    return Response({"accuracy": accuracy})
+
+    print(n_samples)
+    print(lambda_value)
+    print(alpha_value)
+
+
+    # Generate dummy data
+    xs, ys = make_blobs(n_samples, centers=[[0, 0], [0, 2]], cluster_std=[0.3, 0.35])
+    xt, yt = make_blobs(n_samples, centers=[[2, -2], [2, 0.2]], cluster_std=[0.35, 0.4])
+
+
+    # way to upload data.
+    # # Load the source and target data (with multiple features)
+    # source_data = pd.read_csv("country_a_data.csv")
+    # target_data = pd.read_csv("country_b_data.csv")
+
+    # # Split the data into multiple features (dropping the 'label' column)
+    # xs = source_data.drop(columns=["label"]).values  # Multiple features from Country A
+    # ys = source_data["label"].values  # Labels from Country A
+
+    # xt = target_data.drop(columns=["label"]).values  # Multiple features from Country B
+    # yt = target_data["label"].values  # Labels from Country B
+
+
+
+    # Train Ridge Classifier
+    clf = RidgeClassifier(alpha=alpha_value)
+    clf.fit(xs, ys)
+    yt_pred = clf.predict(xt)
+    accuracy_before = accuracy_score(yt, yt_pred)
+
+    # Domain adaptation with CoIRLS
+    clf_ = CoIRLS(lambda_=lambda_value)
+    covariates = np.zeros(n_samples * 2)
+    covariates[:n_samples] = 1
+    enc = OneHotEncoder(handle_unknown="ignore")
+    covariates_mat = enc.fit_transform(covariates.reshape(-1, 1)).toarray()
+
+    x = np.concatenate((xs, xt))
+    clf_.fit(x, ys, covariates_mat)
+    yt_pred_ = clf_.predict(xt)
+    accuracy_after = accuracy_score(yt, yt_pred_)
+
+
+
+    # Send results as JSON response
+    response_data = {
+        "accuracy_before": accuracy_before,
+        "accuracy_after": accuracy_after,
+        "graph_data": {
+            "xs": xs.tolist(),
+            "ys": ys.tolist(),
+            "xt": xt.tolist(),
+            "yt": yt.tolist(),
+        }
+    }
+
+    return Response(response_data)
