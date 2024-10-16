@@ -1,5 +1,6 @@
+// src/components/ExampleForm.js
 import React, { useState } from 'react';
-import Graph from './Graph';  // Import the Graph component
+import Graph from './Graph';
 
 function ExampleForm() {
   const [nSamples, setNSamples] = useState(200);
@@ -16,7 +17,7 @@ function ExampleForm() {
       alpha_value: alphaValue,
     };
 
-    fetch('http://localhost:8000/api/run-example/', {
+    fetch('http://localhost:8000/api/run-example/', { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,8 +26,7 @@ function ExampleForm() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Received Data:', data); // Log the data
-        setResults(data); // Set the state
+        setResults(data);
       })
       .catch((error) => console.error('Error:', error));
   };
@@ -70,7 +70,6 @@ function ExampleForm() {
           <p>Accuracy Before Adaptation: {results.accuracy_before}</p>
           <p>Accuracy After Adaptation: {results.accuracy_after}</p>
 
-          {/* Pass the graph data to the Graph component */}
           <Graph graphData={results.graph_data} />
         </div>
       )}

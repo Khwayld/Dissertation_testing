@@ -72,10 +72,8 @@ def run_example(request):
         "accuracy_before": accuracy_before,
         "accuracy_after": accuracy_after,
         "graph_data": {
-            "xs": xs.tolist(),
-            "ys": ys.tolist(),
-            "xt": xt.tolist(),
-            "yt": yt.tolist(),
+            "source": {"x": xs[:, 0].tolist(), "y": xs[:, 1].tolist(), "labels": ys.tolist()},
+            "target": {"x": xt[:, 0].tolist(), "y": xt[:, 1].tolist(), "labels": yt.tolist()},
         }
     }
 
