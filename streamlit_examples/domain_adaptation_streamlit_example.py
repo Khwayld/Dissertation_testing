@@ -1,13 +1,12 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from sklearn.datasets import make_blobs
 from sklearn.linear_model import RidgeClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder
-from kale.interpret.visualize import distplot_1d
 from kale.pipeline.multi_domain_adapter import CoIRLS
 import streamlit as st
+import pandas as pd
+
 
 
 # CONSTANTS
@@ -34,13 +33,44 @@ def generate_ridge_data(xs, ys, xt, yt):
 
     return accuracy, ys_score, yt_score
 
-def generate_domain_data():
-    pass
+
+def generate_domain_data(xs, ys, xt, yt):
+    clf_ = CoIRLS(lambda_=1)
+    
+    covariates = np.zeros(N_SAMPLES * 2)
+    covariates[:N_SAMPLES] = 1
+    enc = OneHotEncoder(handle_unknown="ignore")
+    covariates_mat = enc.fit_transform(covariates.reshape(-1, 1)).toarray()
+
+    x = np.concatenate((xs, xt))
+    clf_.fit(x, ys, covariates_mat)
+    yt_pred_ = clf_.predict(xt)
+    accuracy = accuracy_score(yt, yt_pred_)
+
+    ys_score = clf_.decision_function(xs).detach().numpy().reshape(-1)
+    yt_score = clf_.decision_function(xt).detach().numpy().reshape(-1)
+
+    return accuracy, ys_score, yt_score
 
 
 
-def main():
+def main():    
+    # generate data for app to use
     xs, ys, xt, yt = generate_toy_data() 
+    acc, ys_score, yt_score = generate_ridge_data(xs, ys, xt, yt)
+    acc_, ys_score_, yt_score_ = generate_domain_data(xs, ys, xt, yt)
+
+
+    # create scatter graph
+    chart_data = pd.DataFrame(np.random.randn(20, 3), columns=["a", "b", "c"])
+    st.scatter_chart(chart_data)
+
+    
+
+    # create text elements
+    st.write("Accuracy on target domain: {:.2f}".format(acc))
+    st.write("Accuracy on target domain: {:.2f}".format(acc_))
+
     
     # convert to streamlit counterpart
     # colors = ["c", "m"]
@@ -71,53 +101,37 @@ def main():
     # plt.title("Source domain and target domain blobs data", fontsize=14, fontweight="bold")
     # plt.show()
 
-
-    acc, ys_score, yt_score = generate_ridge_data(xs, ys, xt, yt)
-    accuracy_score_txt = "Accuracy on target domain: {:.2f}".format(acc)
-    print(accuracy_score_txt)
     
 
     # convert to streamlit counterpart
-    title = "Ridge classifier decision score distribution"
-    title_kwargs = {"fontsize": 14, "fontweight": "bold"}
-    hist_kwargs = {"kde": True, "alpha": 0.7}
-    plt_labels = ["Source", "Target"]
+    # title = "Ridge classifier decision score distribution"
+    # title_kwargs = {"fontsize": 14, "fontweight": "bold"}
+    # hist_kwargs = {"kde": True, "alpha": 0.7}
+    # plt_labels = ["Source", "Target"]
     
-    distplot_1d(
-        [ys_score, yt_score],
-        labels=plt_labels,
-        xlabel="Decision Scores",
-        title=title,
-        title_kwargs=title_kwargs,
-        hist_kwargs=hist_kwargs,
-    ).show()
+    # distplot_1d(
+    #     [ys_score, yt_score],
+    #     labels=plt_labels,
+    #     xlabel="Decision Scores",
+    #     title=title,
+    #     title_kwargs=title_kwargs,
+    #     hist_kwargs=hist_kwargs,
+    # ).show()
 
-    # domain adaptation
-    clf_ = CoIRLS(lambda_=1)
-    # encoding one-hot domain covariate matrix
-    covariates = np.zeros(N_SAMPLES * 2)
-    covariates[:N_SAMPLES] = 1
-    enc = OneHotEncoder(handle_unknown="ignore")
-    covariates_mat = enc.fit_transform(covariates.reshape(-1, 1)).toarray()
 
-    x = np.concatenate((xs, xt))
-    clf_.fit(x, ys, covariates_mat)
-    yt_pred_ = clf_.predict(xt)
-    print("Accuracy on target domain: {:.2f}".format(accuracy_score(yt, yt_pred_)))
-
-    ys_score_ = clf_.decision_function(xs).detach().numpy().reshape(-1)
-    yt_score_ = clf_.decision_function(xt).detach().numpy().reshape(-1)
-    title = "Domain adaptation classifier decision score distribution"
-
+    # convert to streamlit counterpart
+    # title = "Domain adaptation classifier decision score distribution"
     
-    distplot_1d(
-        [ys_score_, yt_score_],
-        labels=plt_labels,
-        xlabel="Decision Scores",
-        title=title,
-        title_kwargs=title_kwargs,
-        hist_kwargs=hist_kwargs,
-    ).show()
+    # distplot_1d(
+    #     [ys_score_, yt_score_],
+    #     labels=plt_labels,
+    #     xlabel="Decision Scores",
+    #     title=title,
+    #     title_kwargs=title_kwargs,
+    #     hist_kwargs=hist_kwargs,
+    # ).show()
+
+
 
 
 if __name__ == "__main__":

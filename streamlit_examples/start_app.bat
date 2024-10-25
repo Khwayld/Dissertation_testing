@@ -1,0 +1,1 @@
+python -m streamlit run domain_adaptation_streamlit_example.py
