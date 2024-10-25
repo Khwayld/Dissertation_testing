@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
