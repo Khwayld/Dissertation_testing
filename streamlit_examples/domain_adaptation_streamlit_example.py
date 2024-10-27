@@ -107,35 +107,38 @@ def main():
     st.write("Accuracy on target domain: {:.2f}".format(acc_))
 
 
+    # Create histogram for ridge classifier    
+    data = pd.DataFrame({
+        'Score': np.concatenate([ys_score, yt_score]),
+        'Type': ['Source'] * len(ys_score) + ['Target'] * len(yt_score)
+    })
 
-    # convert to streamlit counterpart
-    # title = "Ridge classifier decision score distribution"
-    # title_kwargs = {"fontsize": 14, "fontweight": "bold"}
-    # hist_kwargs = {"kde": True, "alpha": 0.7}
-    # plt_labels = ["Source", "Target"]
-    
-    # distplot_1d(
-    #     [ys_score, yt_score],
-    #     labels=plt_labels,
-    #     xlabel="Decision Scores",
-    #     title=title,
-    #     title_kwargs=title_kwargs,
-    #     hist_kwargs=hist_kwargs,
-    # ).show()
+    chart = alt.Chart(data).mark_bar(opacity=0.6).encode(
+        x=alt.X('Score:Q', bin=alt.Bin(maxbins=30), title='Decision Scores'),
+        y=alt.Y('count()', title='Count'),
+        color=alt.Color('Type:N', scale=alt.Scale(domain=['Source', 'Target'], range=['#FF0000', '#0000FF']))
+    )
+
+    st.title("Ridge classifier decision score distribution")
+    st.altair_chart(chart, use_container_width=True)
 
 
-    # convert to streamlit counterpart
-    # title = "Domain adaptation classifier decision score distribution"
-    
-    # distplot_1d(
-    #     [ys_score_, yt_score_],
-    #     labels=plt_labels,
-    #     xlabel="Decision Scores",
-    #     title=title,
-    #     title_kwargs=title_kwargs,
-    #     hist_kwargs=hist_kwargs,
-    # ).show()
 
+
+    # Create histogram for Domain Adaptation Classifier    
+    data = pd.DataFrame({
+        'Score': np.concatenate([ys_score_, yt_score_]),
+        'Type': ['Source'] * len(ys_score_) + ['Target'] * len(yt_score_)
+    })
+
+    chart = alt.Chart(data).mark_bar(opacity=0.6).encode(
+        x=alt.X('Score:Q', bin=alt.Bin(maxbins=30), title='Decision Scores'),
+        y=alt.Y('count()', title='Count'),
+        color=alt.Color('Type:N', scale=alt.Scale(domain=['Source', 'Target'], range=['#FF0000', '#0000FF']))
+    )
+
+    st.title("Domain adaptation classifier decision score distribution")
+    st.altair_chart(chart, use_container_width=True)
 
 
 
