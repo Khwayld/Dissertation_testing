@@ -6,7 +6,7 @@ from sklearn.preprocessing import OneHotEncoder
 from kale.pipeline.multi_domain_adapter import CoIRLS
 import streamlit as st
 import pandas as pd
-
+import altair as alt
 
 
 # CONSTANTS
@@ -58,50 +58,55 @@ def main():
     # generate data for app to use
     xs, ys, xt, yt = generate_toy_data() 
     acc, ys_score, yt_score = generate_ridge_data(xs, ys, xt, yt)
-    acc_, ys_score_, yt_score_ = generate_domain_data(xs, ys, xt, yt)
+    acc_, ys_score_, yt_score_ = generate_domain_data(xs, ys, xt, yt)    
 
+    # create scatter plot for source
+    st.title("Scatter Plot For Source")
+    chart_data = pd.DataFrame({
+        "x": xs[:, 0],
+        "y": xs[:, 1],
+        "label": np.where(ys == 1, "Positive", "Negative")
+    })
 
-    # create scatter graph
-    chart_data = pd.DataFrame(np.random.randn(20, 3), columns=["a", "b", "c"])
-    st.scatter_chart(chart_data)
-
+    scatter_data = alt.Chart(chart_data).mark_circle().encode(
+        x="x", 
+        y="y", 
+        color="label",
+        tooltip=["x", "y", "label"]
+    )
     
+    st.altair_chart(
+        scatter_data, 
+        use_container_width=True
+    )
+
+
+    # create scatter plot for target
+    st.title("Scatter Plot For Target")
+    chart_data = pd.DataFrame({
+        "x": xt[:, 0],
+        "y": xt[:, 1],
+        "label": np.where(yt == 1, "Positive", "Negative")
+    })
+
+    scatter_data = alt.Chart(chart_data).mark_circle().encode(
+        x="x", 
+        y="y", 
+        color="label",
+        tooltip=["x", "y", "label"]
+    )
+    
+    st.altair_chart(
+        scatter_data, 
+        use_container_width=True
+    )
+
 
     # create text elements
     st.write("Accuracy on target domain: {:.2f}".format(acc))
     st.write("Accuracy on target domain: {:.2f}".format(acc_))
 
-    
-    # convert to streamlit counterpart
-    # colors = ["c", "m"]
-    # x_all = [xs, xt]
-    # y_all = [ys, yt]
-    # labels = ["source", "Target"]
-    # plt.figure(figsize=(8, 5))
-    # for i in range(2):
-    #     idx_pos = np.where(y_all[i] == 1)
-    #     idx_neg = np.where(y_all[i] == 0)
-    #     plt.scatter(
-    #         x_all[i][idx_pos, 0],
-    #         x_all[i][idx_pos, 1],
-    #         c=colors[i],
-    #         marker="o",
-    #         alpha=0.4,
-    #         label=labels[i] + " positive",
-    #     )
-    #     plt.scatter(
-    #         x_all[i][idx_neg, 0],
-    #         x_all[i][idx_neg, 1],
-    #         c=colors[i],
-    #         marker="x",
-    #         alpha=0.4,
-    #         label=labels[i] + " negative",
-    #     )
-    # plt.legend()
-    # plt.title("Source domain and target domain blobs data", fontsize=14, fontweight="bold")
-    # plt.show()
 
-    
 
     # convert to streamlit counterpart
     # title = "Ridge classifier decision score distribution"
@@ -136,4 +141,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-    input()
+
+
+
