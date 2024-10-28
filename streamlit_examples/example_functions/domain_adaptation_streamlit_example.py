@@ -54,7 +54,7 @@ def generate_domain_data(xs, ys, xt, yt):
 
 
 
-def main():    
+def domain_adaptation_example():    
     # generate data for app to use
     xs, ys, xt, yt = generate_toy_data() 
     acc, ys_score, yt_score = generate_ridge_data(xs, ys, xt, yt)
@@ -140,10 +140,6 @@ def main():
     st.title("Domain adaptation classifier decision score distribution")
     st.altair_chart(chart, use_container_width=True)
 
-
-
-if __name__ == "__main__":
-    main()
 
 
 

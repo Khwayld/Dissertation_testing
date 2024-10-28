@@ -1,1 +1,1 @@
-python -m streamlit run video_loading_streamlit_example.py
+python -m streamlit run main.py

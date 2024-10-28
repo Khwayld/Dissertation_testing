@@ -7,23 +7,8 @@ from torchvision import transforms
 
 from kale.loaddata.videos import VideoFrameDataset
 from kale.prepdata.video_transform import ImglistToTensor
-from kale.utils.download import download_file_gdrive
+import streamlit as st
 
-
-def plot_video(rows, cols, frame_list, plot_width, plot_height):
-    fig = plt.figure(figsize=(plot_width, plot_height))
-    grid = ImageGrid(
-        fig,
-        111,  # similar to subplot(111)
-        nrows_ncols=(rows, cols),  # creates 2x2 grid of axes
-        axes_pad=0.3,  # pad between axes in inch.
-    )
-
-    for index, (ax, im) in enumerate(zip(grid, frame_list)):
-        # Iterating over the grid returns the Axes.
-        ax.imshow(im)
-        ax.set_title(index)
-    plt.show()
 
 def denormalize(video_tensor):
     """
@@ -54,9 +39,28 @@ def demo_1():
     )
 
     sample = dataset[0]
-    frames = sample[0]  # list of PIL images
+    frames = sample[0]  
 
-    plot_video(rows=1, cols=5, frame_list=frames, plot_width=15.0, plot_height=3.0)
+
+    # Convert to Streamlit
+    rows=1
+    cols=5
+    plot_width=15.0
+    plot_height=3.0
+
+
+    fig = plt.figure(figsize=(plot_width, plot_height))
+    grid = ImageGrid(
+        fig,
+        111,  # similar to subplot(111)
+        nrows_ncols=(rows, cols),  # creates 2x2 grid of axes
+        axes_pad=0.3,  # pad between axes in inch.
+    )
+
+    for index, (ax, im) in enumerate(zip(grid, frames)):
+        st.title(index)
+        st.image(im)
+
 
 
 def demo_2():
@@ -78,7 +82,7 @@ def demo_2():
     frames = sample[0]  # list of PIL images
     label = sample[1]  # integer label
 
-    plot_video(rows=3, cols=3, frame_list=frames, plot_width=10.0, plot_height=5.0)
+    # plot_video(rows=3, cols=3, frame_list=frames, plot_width=10.0, plot_height=5.0)
 
 
 def demo_3():
@@ -110,23 +114,23 @@ def demo_3():
     frame_tensor = sample[0]  # tensor of shape (NUM_SEGMENTS*FRAMES_PER_SEGMENT) x CHANNELS x HEIGHT x WIDTH
     frames = sample[0]  
 
-    print("Video Tensor Size:", frame_tensor.size())
+    # print("Video Tensor Size:", frame_tensor.size())
 
     frame_tensor = denormalize(frame_tensor)
-    plot_video(rows=1, cols=5, frame_list=frames, plot_width=15.0, plot_height=3.0)
+    # plot_video(rows=1, cols=5, frame_list=frames, plot_width=15.0, plot_height=3.0)
 
 
-    dataloader = torch.utils.data.DataLoader(
-        dataset=dataset, batch_size=2, shuffle=True, num_workers=4, pin_memory=True
-    )
+    # dataloader = torch.utils.data.DataLoader(
+    #     dataset=dataset, batch_size=2, shuffle=True, num_workers=4, pin_memory=True
+    # )
 
-    for epoch in range(10):
-        for video_batch, labels in dataloader:
-            print(labels)
-            print("\nVideo Batch Tensor Size:", video_batch.size())
-            print("Batch Labels Size:", labels.size())
-            break
-        break
+    # for epoch in range(10):
+    #     for video_batch, labels in dataloader:
+    #         print(labels)
+    #         print("\nVideo Batch Tensor Size:", video_batch.size())
+    #         print("Batch Labels Size:", labels.size())
+    #         break
+    #     break
 
 def demo_4():
     videos_root = os.path.join(os.getcwd(), "demo_dataset_multilabel")
@@ -156,29 +160,20 @@ def demo_4():
         dataset=dataset, batch_size=3, shuffle=True, num_workers=2, pin_memory=True
     )
 
-    print("\nMulti-Label Example")
-    for epoch in range(10):
-        for batch in dataloader:
-            """
-            Insert Training Code Here
-            """
-            video_batch, (labels1, labels2, labels3) = batch
+    # print("\nMulti-Label Example")
+    # for epoch in range(10):
+    #     for batch in dataloader:
+    #         """
+    #         Insert Training Code Here
+    #         """
+    #         video_batch, (labels1, labels2, labels3) = batch
 
-            print("Video Batch Tensor Size:", video_batch.size())
-            print("Labels1 Size:", labels1.size())  # == batch_size
-            print("Labels2 Size:", labels2.size())  # == batch_size
-            print("Labels3 Size:", labels3.size())  # == batch_size
+    #         print("Video Batch Tensor Size:", video_batch.size())
+    #         print("Labels1 Size:", labels1.size())  # == batch_size
+    #         print("Labels2 Size:", labels2.size())  # == batch_size
+    #         print("Labels3 Size:", labels3.size())  # == batch_size
 
-            break
-        break
-
-
-def main():
-    demo_1()
+    #         break
+    #     break
 
 
-
-
-
-if __name__ == "__main__":
-    main()
