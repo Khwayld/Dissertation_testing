@@ -5,12 +5,20 @@ from pages import home_page, video_demo_page, domain_adaptation_page
 
 
 
-def main():
-    st.navigation([
-        st.Page(home_page, title="Home", icon="🏠"),
-        st.Page(video_demo_page, title="Video Loading Example", icon="🚀"),
-        st.Page(domain_adaptation_page, title="Domain Adaptation Example", icon="🚀")
-    ]).run()
+def main():    
+    # init
+    if "page" not in st.session_state:
+        st.session_state["page"] = "home"
+
+    # state management
+    if st.session_state["page"] == "home":
+        home_page()
+    elif st.session_state["page"] == "video_example":
+        video_demo_page()
+    elif st.session_state["page"] == "domain_adaptation":
+        domain_adaptation_page()
+
+
 
 
 
