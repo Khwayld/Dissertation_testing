@@ -1,6 +1,52 @@
 import streamlit as st
 from example_functions.domain_adaptation_streamlit_example import domain_adaptation_example
 from example_functions.video_loading_streamlit_example import demo_1, demo_2, demo_3, demo_4
+from streamlit_card import card
+
+
+examples = [
+    {
+        "name": "Video Loading Example",
+        "description": "Some Description",
+        "image": "http://placekitten.com/500/500",
+        "nav": "video_example"
+    },
+    
+    {
+        "name": "Domain Adaptation Example",
+        "description": "Some Description",
+        "image": "http://placekitten.com/500/500",
+        "nav": "domain_adaptation"
+    },
+
+    {
+        "name": "Third Example",
+        "description": "Some Description",
+        "image": "http://placekitten.com/500/500",
+        "nav": "domain_adaptation"
+    },
+
+    {
+        "name": "Fourth Example",
+        "description": "Some Description",
+        "image": "http://placekitten.com/500/500",
+        "nav": "domain_adaptation"
+    },
+
+    {
+        "name": "Fifth Example",
+        "description": "Some Description",
+        "image": "http://placekitten.com/500/500",
+        "nav": "domain_adaptation"
+    },
+
+    {
+        "name": "Sixth Example",
+        "description": "Some Description",
+        "image": "http://placekitten.com/500/500",
+        "nav": "domain_adaptation"
+    }
+]
 
 
 def go_to(page):
@@ -12,17 +58,26 @@ def home_page():
     st.markdown("<h1 style='text-align: center;'>Welcome To The Pykale Example Archive 👋</h1>", unsafe_allow_html=True)
     st.markdown("<h5 style='text-align: center;'>Here we explore some examples created in pykale</h5>", unsafe_allow_html=True)
 
-    # nav buttons
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.button("Video Loading Example", on_click=go_to("video_example"), use_container_width=True)
+    # Grid Layout For Examples
+    for row in range(0, len(examples), 3):
+        cols = st.columns(3)
 
-    with col2:
-        st.button("Domain Adaptation Example", on_click=go_to("domain_adaptation"), use_container_width=True)
+        for i in range(3):
+            if row + i < len(examples):
+                example = examples[row+i]
 
-    with col3:
-        st.button("Third Example", on_click=go_to("domain_adaptation"), use_container_width=True)
+                with cols[i]:
+                    card(
+                        title=example["name"],
+                        text=example["description"],
+                        image=example["image"],
+                        styles = {
+                            "card": {
+                                "width": "100%"
+                            }
+                        },
+                        on_click=go_to(example["nav"])
+                    )
 
 
     

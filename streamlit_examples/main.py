@@ -7,8 +7,11 @@ from pages import home_page, video_demo_page, domain_adaptation_page
 
 def main():    
     # init
+    st.set_page_config(layout="wide")
+
     if "page" not in st.session_state:
         st.session_state["page"] = "home"
+
 
     # state management
     if st.session_state["page"] == "home":
