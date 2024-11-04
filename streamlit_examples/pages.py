@@ -48,7 +48,6 @@ examples = [
     }
 ]
 
-
 def go_to(page):
     st.session_state["page"] = page
 
@@ -76,14 +75,13 @@ def home_page():
                                 "width": "100%"
                             }
                         },
-                        on_click=go_to(example["nav"])
+                        on_click=lambda nav=example["nav"]: go_to(nav)
                     )
 
 
-    
 def video_demo_page():
     # Title
-    st.button("Back to Home", on_click=go_to("home"))
+    st.button("Back to Home", on_click=go_to, args=("home",))
     st.markdown("<h1 style='text-align: center;'>Video Loading Example</h1>", unsafe_allow_html=True)
 
 
@@ -91,10 +89,9 @@ def video_demo_page():
     demo = st.radio(
         "Select Demo To Try Out",
         ["Demo 1",  "Demo 2", "Demo 3", "Demo 4"],
-        index=None,
+        index=None
     )
-
-
+    
     # state management
     if demo == "Demo 1":
         demo_1()
@@ -105,9 +102,7 @@ def video_demo_page():
     elif demo == "Demo 4":
         demo_4()
 
-
-
 def domain_adaptation_page():
-    st.button("Back to Home", on_click=go_to("home"))
+    st.button("Back to Home", on_click=go_to, args=("home",))
     st.markdown("<h1 style='text-align: center;'>Domain Adaptation Example</h1>", unsafe_allow_html=True)
     domain_adaptation_example()
